@@ -358,6 +358,13 @@ Write-Host "IIS Reset Complete..."  -ForegroundColor Green
 # The following settings will allow vCAC to function properly on the network.
 # Setting the MSDTC components
 Write-Host "Setting MSDTC components in the registry. Please restart your system after installation completes" -ForegroundColor Yellow
+#Reinstall MSDTC to prevent error on cloned VM's
+Uninstall-Dtc –Confirm:$False
+Install-Dtc -StartType "AutoStart"
+
+#-----------------------------------------
+# END Reinstall MSDTC to prevent error on cloned VM's
+#-----------------------------------------
 Set-ItemProperty -Path HKLM:\Software\Microsoft\MSDTC\Security -Name LuTransactions -Value 1
 Set-ItemProperty -Path HKLM:\Software\Microsoft\MSDTC\Security -Name NetworkDtcAccess -Value 1
 Set-ItemProperty -Path HKLM:\Software\Microsoft\MSDTC\Security -Name NetworkDtcAccessInbound -Value 1
