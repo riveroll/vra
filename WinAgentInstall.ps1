@@ -194,13 +194,6 @@ elseif ( $Version -eq "7.0.1" )
   $agentFile="https://" + $vRAurl + ":5480/installer/GuestAgentInstaller_x64.exe"
   $javaFile="https://" + $vRAurl + ":5480/service/software/download/jre-1.8.0_72-win64.zip"
 }
-elseif ( $Version -eq "7.1" )
-{
-  $msg =  "Setting files for $Version";$BackgroundColor = "Black";$ForegroundColor = "Green";Write-Feedback
-  $bootstrapFile="https://" + $vRAurl + "/software/vmware-vra-software-agent-bootstrap-windows_7.0.0.0.zip"
-  $agentFile="https://" + $vRAurl + "/installer/GuestAgentInstaller_x64.exe"
-  $javaFile="https://" + $vRAurl + "/software/jre-1.8.0_72-win64.zip"
-}
 else
 {
   $msg =  "Setting files for $Version";$BackgroundColor = "Black";$ForegroundColor = "Green";Write-Feedback
