@@ -5,12 +5,16 @@
 # Organization: VMware
 # Twitter: @vTagion
 # vRA 6.2 Pre-Req Automation Script v1
+# Changed by: Pedro Riveroll
+# Sr. Systems Engineer
+# Org: VMware Mexico
+#
 #==============================================
 #----------------------------------------------
 #==================USAGE=======================
-# For Windows Server 2008 & 2012
+# For Windows Server 2012
 # This script has been created to aid in
-# Configuring the settings for the vRA 6.2
+# Configuring the settings for the vRA 7.1
 # Pre-Req Checker. This script will set all
 # Pre-Req's except for enabling TCP/IP in
 # MS SQL, chich needs to be performed manually
@@ -36,6 +40,10 @@
 # ----------------------------------------
 #   USER CONFIGURATION - EDIT AS NEEDED
 # ----------------------------------------
+
+#vRA Appliance FQDN
+$vRAurl = ""
+#vRA Appliance FQDN
 
 # Set IIS default locations to be used with IIS role
 $InetPubRoot = "C:\Inetpub"
@@ -67,14 +75,32 @@ $NTRightsInstallSource = ""
 # Example Corp\vcacservice or Eng\Smithj
 $domainAdminAcct = ""
 
-# -------------- Java 1.7 ----------------
-# Specify what the installer will do if Java is not 1.7
+# -------------- Java 1.8 ----------------
+# Specify what the installer will do if Java is not 1.8
 # 1 - use a local Java installer, 2 - Auto-Download from the internet and proceed , 3 - Exit the script
 $javamenuoption = ""
 $javalocalpath = ""
 
 # ----------------------------------------
 # 		END OF USER CONFIGURATION
+# ----------------------------------------
+
+# function to extract zip files
+function extractZip($file,$dest)
+{
+    $msg = "$file extracting files";$BackgroundColor = "Black";$ForegroundColor = "Yellow";Write-Feedback
+    $shell = new-object -com shell.application
+    if (!(Test-Path "$file"))
+    {
+        throw "$file does not exist"
+    }
+    New-Item -ItemType Directory -Force -Path $dest -WarningAction SilentlyContinue
+    $shell.namespace($dest).copyhere($shell.namespace("$file").items())
+    $msg = "$file extracted";$BackgroundColor = "Black";$ForegroundColor = "Green";Write-Feedback
+}
+
+# ----------------------------------------
+# 	     End Functions
 # ----------------------------------------
 
 # ----Do not modify beyond this point-----
@@ -479,7 +505,7 @@ $JavaVersionMinor = $JavaVersions[1]
 $JavaVersionBuild = $JavaVersions[2]
 } else {$javaversionmajor = 0}
 # If .Net is older than 4.5, stop installer until .Net is upgraded
-	if ($JavaVersionMajor -eq 1 -and $JavaVersionMinor -ge 7 ){ Write-Host "Java version on this server is $JavaVersion "	-ForegroundColor Green
+	if ($JavaVersionMajor -eq 1 -and $JavaVersionMinor -ge 8 ){ Write-Host "Java version on this server is $JavaVersion "	-ForegroundColor Green
 	}else{
 	 	Write-Host "vRA 7.1 requires Java JRE 1.8 64-bit or higher" -ForegroundColor Red
 		if ($javamenuoption -eq ""){
@@ -506,16 +532,19 @@ $JavaVersionBuild = $JavaVersions[2]
 					Write-Host "Creating folder C:\Temp" -ForegroundColor Green
 					New-Item -ItemType Directory -Force -Path "C:\Temp"
 				}
-				Write-Host "Preparing to Download Java JRE 1.7" -ForegroundColor Green
+				Write-Host "Preparing to Download Java JRE 1.8" -ForegroundColor Green
 				Write-Host "Attempting to Download Java. Please be patient." -ForegroundColor Green
 					$downloadjava = New-Object Net.WebClient
-					$javaurl = "http://javadl.sun.com/webapps/download/AutoDL?BundleId=95125"
-					$javafile = ("C:\Temp\javajre17.exe")
+					$javaurl="https://" + $vRAurl + "/software/download/jre-1.8.0_102-win64.zip"
+					$javafile = ("C:\Temp\jre-1.8.0_102-win64.zip")
 					$downloadjava.Downloadfile($javaurl,$javafile)
-				if (!(Test-Path -Path "C:\Temp\javajre17.exe")) {Write-Host "Uh Oh. For some reason we were unable to download the Java installer correctly" -ForegroundColor Yellow
+				if (!(Test-Path -Path "C:\Temp\jre-1.8.0_102-win64.zip")) {Write-Host "Uh Oh. For some reason we were unable to download the Java installer correctly" -ForegroundColor Yellow
 				Throw "Please check your internet connection and rerun this script" } else {Write-Host "File downloaded successfully... Proceeding" -ForegroundColor Green}
 				Write-Host "Attempting to Install Java. Please be patient." -ForegroundColor Green
 				Write-Verbose ""
+				$dest = "C:\Temp\"
+				extractZip $file $dest
+				
 				$InstallJava = Start-Process $javafile -ArgumentList "/s" -Wait -PassThru
 				Write-Host "Java installation finished. Proceeding with script." -ForegroundColor Green
 
@@ -524,8 +553,8 @@ $JavaVersionBuild = $JavaVersions[2]
 			}
 #		}
 	}
-	Write-Host "Setting Java_HOME variable to C:\Program Files\Java\jre1.8.0_91" -ForegroundColor Green
-	setx /M JAVA_HOME "C:\Program Files\Java\jre1.8.0_91"
+	Write-Host "Setting Java_HOME variable to C:\Program Files\Java\jre-1.8.0_102" -ForegroundColor Green
+	setx /M JAVA_HOME "C:\Program Files\Java\jre-1.8.0_102"
 	Write-Host "Java_HOME variable set." -ForegroundColor Green
 
 # ----------------------------------------
