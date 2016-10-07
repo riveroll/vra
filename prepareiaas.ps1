@@ -140,7 +140,7 @@ $Elevated = New-Object Security.Principal.WindowsPrincipal( [Security.Principal.
 # 		CHECK FOR .NET FRAMEWORK
 # ----------------------------------------
 
-# .NET FRAMEWORK 4.5.2 is required for vRA 6.2 to run properly
+# .NET FRAMEWORK 4.5.2 is required for vRA 7.1 to run properly
 	# Check to see if .Net 4.5.2 is present
 	$DNVersion = Get-ChildItem 'HKLM:\SOFTWARE\Microsoft\NET Framework Setup\NDP' -Recurse | Get-ItemProperty -name Version -EA 0 | Where-Object { $_.PSChildName -match '^(?!S)\p{L}'} | Sort-Object version -Descending | Select-Object -ExpandProperty Version -First 1
 	$DNVersions = $DNVersion.Split(".")
@@ -153,7 +153,7 @@ $Elevated = New-Object Security.Principal.WindowsPrincipal( [Security.Principal.
 	# .NET Framework 4.5.2 Build is 4.5.51209
 	if ($DNVersionMajor -eq 4 -and $DNVersionMinor -eq 5 -and $DNVersionBuild -ge 51209 ){ Write-Host ".NET version on this server is $DNVersion "	-ForegroundColor Green
 	}else{
-	 	Write-Host "vRA 6.2 requires .Net framework version 4.5.2 to continue" -ForegroundColor Red
+	 	Write-Host "vRA 7.1 requires .Net framework version 4.5.2 to continue" -ForegroundColor Red
 		if ($menuoption -eq ""){
 		do{
 			Write-Host "
